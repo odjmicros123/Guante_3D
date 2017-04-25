@@ -1,6 +1,12 @@
 PImage img1,img2,img3,img4;
 //PImage bg;
-int r=0,g=0,b=0;
+int r=0,g=0,b=0,a;
+import processing.serial.*;
+
+Serial myPort; //Clase Serial, myport es un objeto.
+float ejeX, ejeY, ejeZ,x,y;
+String inString;
+
 void setup()
 {
   
@@ -13,6 +19,20 @@ img2 = loadImage("Borrador.png");
 img3 = loadImage("Borrador_Titulo.png");
 img4 = loadImage("Colores_Titulo.png");
 //bg = loadImage("Textura.png");
+
+printArray(Serial.list()[0]);
+myPort = new Serial(this,Serial.list()[0],9600);//Conecta al puerto Serial de ARDUINO
+myPort.clear();
+myPort.bufferUntil('\n');
+
+x = width/2;
+
+y=height/2;
+
+ejeX=width/2;
+
+ejeY=height/2;
+
 }
 
 void draw()
@@ -100,13 +120,13 @@ void draw()
   image(img4,25,120);//Texto Colores
   fill(0);
   text("Clic Derecho",55,670);
-  if ((mouseX < 1270) && (mouseX > 150) 
-   && (mouseY < 670)  && (mouseY > 100)){
-   if (mousePressed && (mouseButton == LEFT)){
+  if ((ejeX < 1270) && (ejeX > 150) 
+   && (ejeY < 670)  && (ejeY > 100)){
+   //if (mousePressed && (mouseButton == LEFT)){
   stroke(r,g,b);
   strokeWeight(5);
-  line(mouseX,mouseY,pmouseX,pmouseY);
-   }
+  line(x,y,ejeX,ejeY);
+   
   if (mousePressed && (mouseButton == RIGHT)){
       fill(255);
       stroke(255);
@@ -132,3 +152,22 @@ public void keyPressed(){
     if(key=='o'){ r=0;g=0;b=0;}
     if(key=='b'){r=255;g=255;b=255;}
  }
+ 
+  void serialEvent(Serial p)
+  {
+    inString = myPort.readString().trim();
+    String[] ejes = split(inString, ' ');
+    a = ejes.length;
+    
+    if (a == 3) {
+     x=ejeX;
+     y=ejeY;
+    ejeX= float(ejes[0]);
+    ejeY= float(ejes[1]);
+    ejeZ= float(ejes[2]);
+    print(ejeX); print('\t');
+    print(ejeY); print('\t');
+    println(ejeZ);
+   
+  }
+  }
